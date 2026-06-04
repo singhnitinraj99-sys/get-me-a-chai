@@ -60,11 +60,11 @@ const Navbar = () => {
             {showdropdown && (
               <div className="absolute right-0 mt-2 w-52 bg-gray-800 border border-gray-700 rounded-xl shadow-2xl z-50 overflow-hidden">
 
-                {/* User info header */}
+                {/* User info header — username in bold */}
                 <div className="px-4 py-3 border-b border-gray-700">
                   <p className="text-xs text-gray-400">Signed in as</p>
-                  <p className="text-sm font-semibold text-white truncate">
-                    @{session.user.username || session.user.email}
+                  <p className="text-sm text-white truncate">
+                    <span className="font-bold">@{session.user.username || session.user.email}</span>
                   </p>
                 </div>
 
@@ -97,6 +97,15 @@ const Navbar = () => {
                       <span>💰</span> Earnings
                     </Link>
                   </li>
+                  <li>
+                    <Link
+                      href="/creators"
+                      onClick={() => setShowdropdown(false)}
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-700 hover:text-white transition-colors"
+                    >
+                      <span>🌟</span> Creators
+                    </Link>
+                  </li>
                   <li className="border-t border-gray-700 mt-1">
                     <button
                       onClick={() => signOut()}
@@ -112,14 +121,24 @@ const Navbar = () => {
         )}
 
         {!session && (
-          <Link href="/login">
-            <button
-              type="button"
-              className="text-white bg-gradient-to-br from-purple-600 to-blue-500 border border-transparent rounded-full font-medium text-sm px-5 py-2 hover:opacity-90 transition-opacity"
-            >
-              Login
-            </button>
-          </Link>
+          <div className="flex items-center gap-2">
+            <Link href="/creators">
+              <button
+                type="button"
+                className="text-gray-300 bg-transparent border border-gray-600 rounded-full font-medium text-sm px-4 py-2 hover:bg-gray-800 transition-colors"
+              >
+                Browse Creators
+              </button>
+            </Link>
+            <Link href="/login">
+              <button
+                type="button"
+                className="text-white bg-gradient-to-br from-purple-600 to-blue-500 border border-transparent rounded-full font-medium text-sm px-5 py-2 hover:opacity-90 transition-opacity"
+              >
+                Login
+              </button>
+            </Link>
+          </div>
         )}
 
       </div>

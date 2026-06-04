@@ -109,5 +109,41 @@ export const fetchAllEarningsByEmail = async (email) => {
     totalCount: allPayments.length
   };
 }
+// Add this function to your existing actions/useractions.js file
 
+export const fetchAllCreators = async () => {
+  await connectDB();
+
+  // Get all users who have at least logged in
+  let users = await User.find({}).lean();
+
+  // For each user, get their total earnings from payments
+  let creatorsWithStats = await Promise.all(
+    users.map(async (user) => {
+      let stats = await Payment.aggregate([
+        { $match: { to_user: user.email, done: true } },
+        {
+          $group: {
+            _id: null,
+            totalAmount: { $sum: "$amount" },
+            totalCount: { $sum: 1 }
+          }
+        }
+      ]);
+
+      return {
+        username: user.username,
+        name: user.name || user.username,
+        profilepic: user.profilepic || null,
+        totalAmount: stats[0]?.totalAmount || 0,
+        totalCount: stats[0]?.totalCount || 0,
+      };
+    })
+  );
+
+  // Sort by total amount raised, highest first
+  creatorsWithStats.sort((a, b) => b.totalAmount - a.totalAmount);
+
+  return JSON.parse(JSON.stringify(creatorsWithStats));
+};
 //MONGODB_URI=mongodb+srv://singhnitinraj96_db_user:AMqa15zZq9AWpW68@cluster0.0by395t.mongodb.net/getmeachai?appName=Cluster0
