@@ -13,7 +13,7 @@ const PaymentPage = ({ username }) => {
     const [currentUser, setcurrentUser] = useState(null);
     const [payments, setPayments] = useState([]);
     const [overallStats, setOverallStats] = useState({ totalCount: 0, totalAmount: 0 });
-    
+
     const searchParams = useSearchParams();
     const router = useRouter();
 
@@ -50,7 +50,7 @@ const PaymentPage = ({ username }) => {
             if (u) {
                 setcurrentUser(u);
                 let res = await fetchpayments(username);
-                
+
                 if (res && Array.isArray(res.leaderboard)) {
                     setPayments(res.leaderboard);
                 } else if (Array.isArray(res)) {
@@ -101,15 +101,16 @@ const PaymentPage = ({ username }) => {
                     "email": "",
                     "contact": ""
                 },
-                "theme": { "color": "#3399cc" },
-                "modal": {
-                    "ondismiss": function () {
-                        // Helps free memory when modal closes, especially on low-RAM devices
-                        rzp1 = null;
-                    }
-                }
+                "theme": { "color": "#3399cc" }
             };
+
+            // Declared BEFORE options.modal so the closure can safely reference it
             var rzp1 = new window.Razorpay(options);
+
+            rzp1.on("payment.error", function () {
+                rzp1 = null;
+            });
+
             rzp1.open();
         } catch (error) {
             toast.error(error.message, {
@@ -147,7 +148,7 @@ const PaymentPage = ({ username }) => {
             />
             <Script
                 src="https://checkout.razorpay.com/v1/checkout.js"
-                strategy="lazyOnload"
+                strategy="afterInteractive"
             />
 
             {/* Cover */}
@@ -170,7 +171,7 @@ const PaymentPage = ({ username }) => {
             <div className="info max-w-6xl mx-auto px-4 pt-16 pb-12 flex justify-center items-center flex-col gap-2 text-white">
                 <div className='font-bold text-xl sm:text-2xl md:text-3xl'>@{username}</div>
                 <div className='text-slate-400 text-xs sm:text-sm md:text-base text-center'>Lets help {username} get a chai!</div>
-                
+
                 <div className='text-slate-400 text-xs sm:text-sm md:text-base font-medium bg-slate-800/40 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full border border-slate-700/50 mt-1'>
                     {overallStats?.totalCount || 0} {(overallStats?.totalCount === 1) ? 'Payment' : 'Payments'} · ₹{(overallStats?.totalAmount || 0).toLocaleString('en-IN')} raised
                 </div>
