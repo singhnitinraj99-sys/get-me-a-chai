@@ -77,6 +77,15 @@ const PaymentPage = ({ username }) => {
 
     const pay = async (amount) => {
         try {
+            // Safety check — script may not have loaded yet on slow devices
+            if (typeof window === "undefined" || !window.Razorpay) {
+                toast.error("Payment system is still loading, please try again in a moment.", {
+                    position: "top-right",
+                    autoClose: 4000,
+                });
+                return;
+            }
+
             let a = await initiate(amount, username, paymentform);
             let orderId = a.id;
             var options = {
@@ -92,7 +101,13 @@ const PaymentPage = ({ username }) => {
                     "email": "",
                     "contact": ""
                 },
-                "theme": { "color": "#3399cc" }
+                "theme": { "color": "#3399cc" },
+                "modal": {
+                    "ondismiss": function () {
+                        // Helps free memory when modal closes, especially on low-RAM devices
+                        rzp1 = null;
+                    }
+                }
             };
             var rzp1 = new window.Razorpay(options);
             rzp1.open();
@@ -130,7 +145,10 @@ const PaymentPage = ({ username }) => {
                 pauseOnHover
                 theme="light"
             />
-            <Script src="https://checkout.razorpay.com/v1/checkout.js"></Script>
+            <Script
+                src="https://checkout.razorpay.com/v1/checkout.js"
+                strategy="lazyOnload"
+            />
 
             {/* Cover */}
             <div className='cover w-full relative'>
